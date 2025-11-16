@@ -4,13 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProgress } from '@/hooks/useProgress';
+import { usePreferences } from '@/hooks/usePreferences';
 import { CheckCircle2, Circle, Bookmark, BookmarkCheck, ArrowLeft, ArrowRight, Lightbulb, Keyboard, List } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export function GuideSection() {
   const { sectionId, subsectionId } = useParams();
   const navigate = useNavigate();
   const { isCompleted, markAsCompleted, markAsIncomplete, isBookmarked, toggleBookmark, setLastVisited } = useProgress();
+  const { preferences } = usePreferences();
 
   const section = guideContent.find((s) => s.id === sectionId);
   const subsection = section?.subsections?.find((ss) => ss.id === subsectionId);
@@ -50,6 +52,14 @@ export function GuideSection() {
 
     const completed = isCompleted(subsection.id);
     const bookmarked = isBookmarked(subsection.id);
+
+    // Filter shortcuts based on selected OS
+    const filteredShortcuts = useMemo(() => {
+      if (!subsection.shortcuts) return [];
+      return subsection.shortcuts.filter(
+        (shortcut) => shortcut.platform === 'all' || shortcut.platform === preferences.operatingSystem
+      );
+    }, [subsection.shortcuts, preferences.operatingSystem]);
 
     return (
       <div className="space-y-6">
@@ -112,7 +122,7 @@ export function GuideSection() {
               <Lightbulb className="mr-2 h-4 w-4" />
               Tips
             </TabsTrigger>
-            <TabsTrigger value="shortcuts" disabled={!subsection.shortcuts || subsection.shortcuts.length === 0}>
+            <TabsTrigger value="shortcuts" disabled={filteredShortcuts.length === 0}>
               <Keyboard className="mr-2 h-4 w-4" />
               Shortcuts
             </TabsTrigger>
@@ -144,15 +154,17 @@ export function GuideSection() {
           </TabsContent>
 
           <TabsContent value="shortcuts">
-            {subsection.shortcuts && subsection.shortcuts.length > 0 && (
+            {filteredShortcuts.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Keyboard Shortcuts</CardTitle>
-                  <CardDescription>Speed up your workflow</CardDescription>
+                  <CardDescription>
+                    Speed up your workflow - showing shortcuts for {preferences.operatingSystem === 'mac' ? 'macOS' : preferences.operatingSystem === 'linux' ? 'Linux' : 'Windows'}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {subsection.shortcuts.map((shortcut, index) => (
+                    {filteredShortcuts.map((shortcut, index) => (
                       <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                         <span className="text-sm">{shortcut.description}</span>
                         <div className="flex gap-1">

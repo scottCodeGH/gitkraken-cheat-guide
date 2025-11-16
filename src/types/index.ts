@@ -37,4 +37,5 @@ export interface UserPreferences {
   darkMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
   sidebarCollapsed: boolean;
+  operatingSystem: 'windows' | 'mac' | 'linux';
 }

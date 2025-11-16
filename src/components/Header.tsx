@@ -1,5 +1,6 @@
-import { Menu, Moon, Sun, Search } from 'lucide-react';
+import { Menu, Moon, Sun, Search, Monitor, Apple, SquareTerminal } from 'lucide-react';
 import { Button } from './ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { usePreferences } from '@/hooks/usePreferences';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -9,9 +10,20 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const { preferences, toggleDarkMode } = usePreferences();
+  const { preferences, toggleDarkMode, setOperatingSystem } = usePreferences();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const getOSIcon = () => {
+    switch (preferences.operatingSystem) {
+      case 'mac':
+        return <Apple className="h-4 w-4" />;
+      case 'linux':
+        return <SquareTerminal className="h-4 w-4" />;
+      default:
+        return <Monitor className="h-4 w-4" />;
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +68,34 @@ export function Header({ onMenuClick }: HeaderProps) {
               />
             </div>
           </form>
+          <Select value={preferences.operatingSystem} onValueChange={setOperatingSystem}>
+            <SelectTrigger className="w-[140px] hidden sm:flex" title="Select your operating system">
+              <div className="flex items-center gap-2">
+                {getOSIcon()}
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="windows">
+                <div className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4" />
+                  <span>Windows</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="mac">
+                <div className="flex items-center gap-2">
+                  <Apple className="h-4 w-4" />
+                  <span>macOS</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="linux">
+                <div className="flex items-center gap-2">
+                  <SquareTerminal className="h-4 w-4" />
+                  <span>Linux</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             variant="ghost"
             size="icon"
