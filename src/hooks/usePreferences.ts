@@ -2,10 +2,19 @@ import { useLocalStorage } from './useLocalStorage';
 import { UserPreferences } from '@/types';
 import { useEffect } from 'react';
 
+// Detect user's operating system
+const detectOS = (): UserPreferences['operatingSystem'] => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  if (userAgent.includes('mac')) return 'mac';
+  if (userAgent.includes('linux')) return 'linux';
+  return 'windows';
+};
+
 const initialPreferences: UserPreferences = {
   darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
   fontSize: 'medium',
   sidebarCollapsed: false,
+  operatingSystem: detectOS(),
 };
 
 export function usePreferences() {
@@ -35,10 +44,15 @@ export function usePreferences() {
     setPreferences(prev => ({ ...prev, sidebarCollapsed: !prev.sidebarCollapsed }));
   };
 
+  const setOperatingSystem = (operatingSystem: UserPreferences['operatingSystem']) => {
+    setPreferences(prev => ({ ...prev, operatingSystem }));
+  };
+
   return {
     preferences,
     toggleDarkMode,
     setFontSize,
     toggleSidebar,
+    setOperatingSystem,
   };
 }
