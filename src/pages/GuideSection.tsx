@@ -73,6 +73,32 @@ export function GuideSection() {
       );
     }, [subsection.shortcuts, preferences.operatingSystem]);
 
+    // Handle marking as complete and navigating to next lesson
+    const handleMarkComplete = () => {
+      markAsCompleted(subsection.id);
+
+      // Navigate to next subsection if available
+      if (nextSubsection) {
+        setTimeout(() => {
+          navigate(`/guide/${sectionId}/${nextSubsection.id}`);
+        }, 300); // Small delay for better UX
+      } else {
+        // If no more subsections, find next section
+        const currentSectionIndex = guideContent.findIndex((s) => s.id === sectionId);
+        if (currentSectionIndex < guideContent.length - 1) {
+          const nextSection = guideContent[currentSectionIndex + 1];
+          setTimeout(() => {
+            navigate(`/guide/${nextSection.id}`);
+          }, 300);
+        } else {
+          // All done! Go back to home
+          setTimeout(() => {
+            navigate('/');
+          }, 300);
+        }
+      }
+    };
+
     return (
       <div className="space-y-6">
         {/* Breadcrumb */}
@@ -101,7 +127,7 @@ export function GuideSection() {
             </Button>
             <Button
               variant={completed ? "default" : "outline"}
-              onClick={() => completed ? markAsIncomplete(subsection.id) : markAsCompleted(subsection.id)}
+              onClick={() => completed ? markAsIncomplete(subsection.id) : handleMarkComplete()}
             >
               {completed ? (
                 <>
