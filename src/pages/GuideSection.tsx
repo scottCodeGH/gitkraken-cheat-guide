@@ -44,6 +44,18 @@ export function GuideSection() {
     );
   }
 
+  // Show loading during redirect
+  if (!subsectionId && section.subsections && section.subsections.length > 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-pulse">
+          <div className="h-8 w-48 bg-muted rounded mx-auto mb-4"></div>
+          <div className="h-4 w-64 bg-muted rounded mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
   // If displaying subsection
   if (subsection) {
     const currentIndex = section.subsections!.findIndex((ss) => ss.id === subsectionId);
